@@ -1,0 +1,244 @@
+const express = require('express');
+const router = express.Router();
+const Product = require('../models/product.model');
+
+/**
+ * @swagger
+ * tags:
+ *   - name: Product
+ *     description: API quản lý sản phẩm
+ */
+// CREATE Product
+/**
+ * @swagger
+ * /api/products:
+ *   post:
+ *     summary: Tạo sản phẩm mới
+ *     tags: [Product]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Laptop Gaming"
+ *               price:
+ *                 type: number
+ *                 example: 1999.99
+ *               categoryId:
+ *                 type: string
+ *                 example: "65c9b8f6e8c2b001f8d1234"
+ *     responses:
+ *       201:
+ *         description: Sản phẩm được tạo thành công
+ *       400:
+ *         description: Lỗi đầu vào
+ */
+router.post('/', async (req, res) => {
+  try {
+    const product = new Product(req.body);
+    await product.save();
+    res.status(201).json(product);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// GET all Products
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     summary: Lấy danh sách tất cả sản phẩm
+ *     tags: [Product]
+ *     responses:
+ *       200:
+ *         description: Thành công
+ */
+router.get('/', async (req, res) => {
+  try {
+    const products = await Product.find().populate('categoryId', 'name');
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//
+/**
+ * @swagger
+ * /api/products/price-range:
+ *   get:
+ *     summary: Lấy danh sách sản phẩm có giá trong khoảng nhất định
+ *     tags: [Product]
+ *     parameters:
+ *       - in: query
+ *         name: min
+ *         required: false
+ *         schema:
+ *           type: number
+ *         description: Giá tối thiểu (mặc định là 0 nếu không nhập)
+ *       - in: query
+ *         name: max
+ *         required: false
+ *         schema:
+ *           type: number
+ *         description: Giá tối đa (không giới hạn nếu không nhập)
+ *     responses:
+ *       200:
+ *         description: Danh sách sản phẩm trong khoảng giá đã cho
+ *       400:
+ *         description: Lỗi request không hợp lệ
+ *       500:
+ *         description: Lỗi server
+ */
+router.get('/price-range', async (req, res) => {
+  try {
+    let { min, max } = req.query;
+    if (isNaN(min)) min = 0;
+    if (isNaN(max)) max = Infinity;
+    const products = await Product.find({ price: { $gte: min, $lte: max } });
+    if (products.length === 0) {
+     return res.status(400).json({ message: 'Không có sản phẩm trong khoảng giá này' }); 
+    }
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//
+
+// READ Products by Category
+/**
+ * @swagger
+ * /api/products/category/{categoryId}:
+ *   get:
+ *     summary: Lấy danh sách sản phẩm theo danh mục
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: categoryId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của danh mục
+ *     responses:
+ *       200:
+ *         description: Thành công
+ */
+router.get('/category/:categoryId', async (req, res) => {
+  try {
+    const products = await Product.find({ categoryId: req.params.categoryId });
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET Product by ID
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Lấy sản phẩm theo ID
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của sản phẩm
+ *     responses:
+ *       200:
+ *         description: Thành cong
+ *       404:
+ *         description: Không tìm thấy sản phẩm
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const products = await Product.findById(req.params.id );
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// UPDATE Product
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   put:
+ *     summary: Cập nhật sản phẩm
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của sản phẩm cần cập nhật
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               categoryId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Cập nhật thành công
+ *       404:
+ *         description: Không tìm thấy sản phẩm
+ */
+router.put('/:id', async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE Product
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   delete:
+ *     summary: Xóa sản phẩm
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của sản phẩm cần xóa
+ *     responses:
+ *       200:
+ *         description: Xóa thành công
+ *       404:
+ *         description: Không tìm thấy sản phẩm
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.json({ message: 'Product deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+module.exports = router;
