@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/product.model');
-
+const authMiddleware = require('../middlewares/authMiddleware')
+const auth = authMiddleware(['admin'])
 /**
  * @swagger
  * tags:
@@ -37,7 +38,7 @@ const Product = require('../models/product.model');
  *       400:
  *         description: Lỗi đầu vào
  */
-router.post('/', async (req, res) => {
+router.post('/',auth, async (req, res) => {
   try {
     const product = new Product(req.body);
     await product.save();
@@ -201,7 +202,7 @@ router.get('/:id', async (req, res) => {
  *       404:
  *         description: Không tìm thấy sản phẩm
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id',auth, async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -231,7 +232,7 @@ router.put('/:id', async (req, res) => {
  *       404:
  *         description: Không tìm thấy sản phẩm
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',auth, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });

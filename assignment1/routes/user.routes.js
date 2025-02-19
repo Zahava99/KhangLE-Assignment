@@ -5,13 +5,13 @@ const { body, validationResult } = require('express-validator')
 const User = require('../models/user.model')
 const router = express.Router()
 const authMiddleware = require('../middlewares/authMiddleware')
-
+const auth = authMiddleware(['admin'])
 //User Sign-up
 
 /**
  * @swagger
  * tags:
- *   name: Users
+ *   name: Admins
  *   description: API quản lý người dùng
  */
 
@@ -112,7 +112,8 @@ router.post(
       if (!isMatch) {
         return res.status(400).json({ message: 'Invalid credentials' })
       }
-      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      console.log("JWT_SECRET:", process.env.JWT_SECRET);
+      const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
         expiresIn: '1h'
       })
       res.json({ token })
@@ -126,7 +127,7 @@ router.post(
 
 /**
  * @swagger
- * /api/users:
+ * /api/users/users:
  *   get:
  *     summary: Lấy danh sách tất cả người dùng (chỉ admin)
  *     tags: [Users]
@@ -140,7 +141,7 @@ router.post(
  *       500:
  *         description: Lỗi server
  */
-router.get('/users', authMiddleware(['admin']), async (req, res) => {
+router.get('/users',auth, async (req, res) => {
   try {
     const users = await User.find().select('-password')
     res.json(users)
@@ -148,4 +149,32 @@ router.get('/users', authMiddleware(['admin']), async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 })
+// GET User by ID
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Lấy danh sách người dùng theo ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của người dùng
+ *     responses:
+ *       200:
+ *         description: Thành cong
+ *       404:
+ *         description: Không tìm thấy người dùng
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const users = await User.findById(req.params.id );
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 module.exports = router;

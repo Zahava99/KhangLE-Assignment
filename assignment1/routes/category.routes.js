@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const Category = require('../models/category.model')
 const Product = require('../models/product.model')
+const authMiddleware = require('../middlewares/authMiddleware')
+const auth = authMiddleware(['admin'])
 /**
  * @swagger
  * tags:
@@ -14,6 +16,8 @@ const Product = require('../models/product.model')
  *   post:
  *     summary: Thêm mới một category
  *     tags: [Categories]
+ *     security:
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -27,7 +31,7 @@ const Product = require('../models/product.model')
  *       201:
  *         description: Category đã được tạo
  */
-router.post('/', async (req, res) => {
+router.post('/',auth, async (req, res) => {
   try {
     const category = new Category(req.body)
     await category.save()
@@ -159,7 +163,7 @@ router.get('/', async (req, res) => {
  *       404:
  *         description: Không tìm thấy category
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id',auth, async (req, res) => {
   try {
     const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
       new: true
@@ -201,7 +205,7 @@ router.put('/:id', async (req, res) => {
 //     res.status(500).json({ message: error.message });
 //   }
 // });
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',auth, async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id)
     if (!category)
