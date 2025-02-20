@@ -1,0 +1,13 @@
+# Bảo mật thông tin quan trọng
+assignment.env
+
+# Thư mục node_modules
+node_modules
+
+# File log
+npm-debug.log
+yarn-error.log
+
+# Build output
+dist
+build
