@@ -11,6 +11,7 @@ connectDB()
 app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Session cho Web
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -35,6 +36,8 @@ app.use('/api/products', require('./routes/product.routes'))
 app.use('/dashboard', require('./routes/dashboard.routes'));
 app.use('/login', require('./routes/login.routes'));
 app.use('/logout', require('./routes/logout.routes'));
+app.use('/products', require('./webRoutes/product.routes'));
+app.use('/category', require('./webRoutes/category.routes'));
 //
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))

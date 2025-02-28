@@ -12,3 +12,10 @@ module.exports.webAuth = (req, res, next) => {
         res.redirect('/dashboard/login');  // Nếu token không hợp lệ, redirect đến login
     }
 };
+module.exports.isAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        next();  // Nếu là admin, tiếp tục request
+    } else {
+        res.status(403).send("Bạn không có quyền truy cập.");
+    }
+};

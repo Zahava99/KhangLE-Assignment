@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Category List</title>
+  </head>
+  <body>
+    <h1>Categories</h1>
+    <a href="/dashboard">Back to Dashboard</a>
+    <!-- <a href="/category/add">Add New Category</a> -->
+    <% if (user.role === 'admin') { %>
+    <a href="/category/add">Add New Category</a>
+    <% } %>
+    <table border="1">
+      <tr>
+        <!-- <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th> -->
+        <% if (user.role === 'admin') { %>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Actions</th>
+        <% } %>
+      </tr>
+      <% categories.forEach(category => { %>
+      <tr>
+        <td><%= category._id %></td>
+        <td><%= category.name %></td>
+        <!-- <td>
+                <a href="/category/edit/<%= category._id %>">Edit</a>
+                <a href="/category/delete/<%= category._id %>" onclick="return confirm('Are you sure?')">Delete</a>
+            </td> -->
+        <% if (user.role === 'admin') { %>
+        <td>
+          <a href="/category/edit/<%= category._id %>">Sửa</a>
+          <a href="/category/delete/<%= category._id %>" onclick="return confirm('Are you sure?')">Delete</a>
+        </td>
+        <% } %>
+      </tr>
+      <% }) %>
+    </table>
+  </body>
+</html>
