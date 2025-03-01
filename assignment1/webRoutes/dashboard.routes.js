@@ -4,6 +4,7 @@ const webAuth = require('../middlewares/webAuthMiddleware');
 
 // Middleware xác thực cho Web
 router.get('/', webAuth, (req, res) => {
+  
   res.render('dashboard', { user: req.user });
 });
 

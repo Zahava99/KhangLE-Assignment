@@ -5,11 +5,11 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const bcrypt = require('bcryptjs')
+const redirectIfAuthenticated  = require('../middlewares/redirectIfAuthenticated');
 // Trang login
-router.get('/', (req, res) => {
+router.get('/', redirectIfAuthenticated, (req, res) => {
   res.render('login');
 });
-
 // Xử lý login và tạo JWT token
 router.post(
   '/',

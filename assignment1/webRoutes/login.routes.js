@@ -3,10 +3,12 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 
 // Trang login
-router.get('/', (req, res) => {
-  res.render('login');
+// router.get('/', (req, res) => {
+//   res.render('login');
+// });
+router.get('/', redirectIfAuthenticated, (req, res) => {
+    res.render('login'); // Render trang login nếu chưa đăng nhập
 });
-
 // Xử lý login và tạo JWT token
 router.post('/', (req, res) => {
   const { username, password } = req.body;

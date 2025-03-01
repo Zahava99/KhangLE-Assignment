@@ -6,7 +6,9 @@ router.get('/', (req, res) => {
         if (err) {
             return res.status(500).json({ message: 'Error while logging out' });
         }
-        // Sau khi logout thành công, chuyển hướng về trang login
+        res.clearCookie('connect.sid', {
+            path: '/',
+        });
         res.redirect('/login');
     });
 });
