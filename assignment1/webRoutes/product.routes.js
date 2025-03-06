@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/product.model');
+const Category = require('../models/category.model');
 const upload = require('../middlewares/uploadMiddleware');
 const { webAuth, isAdmin } = require('../middlewares/webAuthMiddleware');
-// Lấy danh sách sản phẩm
+// GET PRODUCTS
 router.get('/',webAuth, async (req, res) => {
     try {
         const products = await Product.find();
@@ -13,12 +14,18 @@ router.get('/',webAuth, async (req, res) => {
     }
 });
 
-// Form thêm sản phẩm
-router.get('/add',webAuth, isAdmin, (req, res) => {
-    res.render('product-add');
+// ADD PRODUCT
+router.get('/add',webAuth, isAdmin, async (req, res) => {
+    // res.render('product-add');
+    try {
+        const categories = await Category.find(); // Lấy tất cả categories từ database
+        res.render('product-add', { categories }); // Truyền dữ liệu categories vào template
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
 });
-
-// Xử lý thêm sản phẩm
+// ADD PRODUCT PROCESSING
 router.post('/add', upload.single('image'),webAuth, isAdmin, async (req, res) => {
     try {
         const { name, price, categoryId } = req.body;
@@ -32,7 +39,7 @@ router.post('/add', upload.single('image'),webAuth, isAdmin, async (req, res) =>
     }
 });
 
-// Form sửa sản phẩm
+// EDIT PRODUCT
 router.get('/edit/:id',webAuth, isAdmin, async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
@@ -43,7 +50,7 @@ router.get('/edit/:id',webAuth, isAdmin, async (req, res) => {
     }
 });
 
-// Xử lý cập nhật sản phẩm
+// EDIT PRODUCT PROCESSING
 router.post('/edit/:id', upload.single('image'),webAuth, isAdmin, async (req, res) => {
     try {
         const { name, price, categoryId } = req.body;
@@ -66,7 +73,7 @@ router.post('/edit/:id', upload.single('image'),webAuth, isAdmin, async (req, re
     }
 });
 
-// Xóa sản phẩm
+// DELETE PRODUCT
 router.get('/delete/:id',webAuth, isAdmin, async (req, res) => {
     try {
         await Product.findByIdAndDelete(req.params.id);
@@ -75,5 +82,4 @@ router.get('/delete/:id',webAuth, isAdmin, async (req, res) => {
         res.status(500).send(error.message);
     }
 });
-
 module.exports = router;

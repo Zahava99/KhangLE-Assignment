@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Category = require('../models/category.model');
 const { webAuth, isAdmin } = require('../middlewares/webAuthMiddleware');
-// Hiển thị danh sách categories
+// GET CATEGORIES
 router.get('/',webAuth, async (req, res) => {
     try {
         const categories = await Category.find();
@@ -12,12 +12,12 @@ router.get('/',webAuth, async (req, res) => {
     }
 });
 
-// Hiển thị form tạo category
+// CREATE SHOW
 router.get('/add',webAuth, isAdmin, (req, res) => {
     res.render('category-add');
 });
 
-// Xử lý tạo category
+// CREATE
 router.post('/add',webAuth, isAdmin, async (req, res) => {
     try {
         const { name } = req.body;
@@ -29,7 +29,7 @@ router.post('/add',webAuth, isAdmin, async (req, res) => {
     }
 });
 
-// Hiển thị form cập nhật category
+// EDIT SHOW
 router.get('/edit/:id',webAuth, isAdmin, async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
@@ -39,7 +39,7 @@ router.get('/edit/:id',webAuth, isAdmin, async (req, res) => {
     }
 });
 
-// Xử lý cập nhật category
+// EDIT
 router.post('/edit/:id',webAuth, isAdmin, async (req, res) => {
     try {
         await Category.findByIdAndUpdate(req.params.id, { name: req.body.name });
@@ -49,7 +49,7 @@ router.post('/edit/:id',webAuth, isAdmin, async (req, res) => {
     }
 });
 
-// Xử lý xóa category
+// DELETE
 router.get('/delete/:id',webAuth, isAdmin, async (req, res) => {
     try {
         await Category.findByIdAndDelete(req.params.id);

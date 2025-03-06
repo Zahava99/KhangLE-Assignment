@@ -24,8 +24,8 @@
             <% if (user.role === 'admin') { %>
             <th>Tên</th>
             <th>Giá</th>
-            <th>Danh mục</th>
             <th>Hình ảnh</th>
+            <th>Danh mục</th>
             <th>Hành động</th>
             <% } %>
           </tr>
@@ -34,7 +34,10 @@
           <% products.forEach(product => { %>
           <tr>
             <td><%= product.name %></td>
-            <td><%= product.price ? product.price.toLocaleString('vi-VN') + ' VND' : 'Chưa có giá' %></td>
+            <td>
+              <%= product.price ? product.price.toLocaleString('vi-VN') + ' VND'
+              : 'Chưa có giá' %>
+            </td>
             <!-- <td><%= product.categoryId %></td> -->
             <td>
               <% if (product.image) { %>
@@ -57,34 +60,36 @@
               >
             </td> -->
             <% if (user.role === 'admin') { %>
-                <td><%= product.categoryId %></td>
-                <!-- <td>
+            <td><%= product.categoryId %></td>
+            <!-- <td>
                   <% if (product.image) { %>
                   <img src="<%= product.image %>" alt="Product Image" width="100" />
                   <% } else { %>
                   <span>Không có ảnh</span>
                   <% } %>
                 </td> -->
-                <td>
-                  <a
-                    href="/products/edit/<%= product._id %>"
-                    class="btn btn-warning btn-sm"
-                    >Sửa</a
-                  >
-                  <a
-                    href="/products/delete/<%= product._id %>"
-                    class="btn btn-danger btn-sm"
-                    onclick="return confirm('Bạn có chắc muốn xóa?')"
-                    >Xóa</a
-                  >
-                </td>
+            <td>
+              <a
+                href="/products/edit/<%= product._id %>"
+                class="btn btn-warning btn-sm"
+                >Sửa</a
+              >
+              <a
+                href="/products/delete/<%= product._id %>"
+                class="btn btn-danger btn-sm"
+                onclick="return confirm('Bạn có chắc muốn xóa?')"
+                >Xóa</a
+              >
+            </td>
             <% } %>
           </tr>
           <% }) %>
         </tbody>
       </table>
-
+      <% if (user.role === 'admin') { %>
       <a href="/products/add" class="btn btn-primary">Thêm sản phẩm</a>
+      <% } %>
+      <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
     </div>
   </body>
 </html>

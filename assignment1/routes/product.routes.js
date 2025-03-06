@@ -4,6 +4,7 @@ const Product = require('../models/product.model')
 const authMiddleware = require('../middlewares/authMiddleware')
 const auth = authMiddleware(['admin'])
 const upload = require('../middlewares/uploadMiddleware');
+const Category = require('../models/category.model');
 // // Cấu hình multer để lưu trữ hình ảnh
 /**
  * @swagger
@@ -305,5 +306,4 @@ router.delete('/:id', auth, async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 })
-
 module.exports = router
